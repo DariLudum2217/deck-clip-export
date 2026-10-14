@@ -1,0 +1,17 @@
+{
+  "name": "Deck Clip Export",
+  "author": "Dari Ludum",
+  "flags": [],
+  "api_version": 1,
+  "publish": {
+    "tags": [
+      "recordings",
+      "screenshots",
+      "export",
+      "localsend",
+      "syncthing"
+    ],
+    "description": "Exports Steam Game Recording clips to standard MP4 files without re-encoding and sends recordings and screenshots to other devices with LocalSend or Syncthing, entirely from Game Mode.",
+    "image": ""
+  }
+}

@@ -1,0 +1,50 @@
+name: Release
+
+# Runs when a release is published on GitHub (or by hand from the Actions tab).
+# Builds the frontend and attaches an installable deck-clip-export.zip to the release.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build frontend
+        run: pnpm run build
+
+      - name: Package plugin
+        run: |
+          mkdir -p out/deck-clip-export
+          cp -r dist main.py plugin.json package.json README.md LICENSE out/deck-clip-export/
+          cd out && zip -r ../deck-clip-export.zip deck-clip-export
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deck-clip-export
+          path: deck-clip-export.zip
+
+      - name: Publish release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: deck-clip-export.zip
+          generate_release_notes: true
