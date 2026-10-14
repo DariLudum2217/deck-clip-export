@@ -4,6 +4,7 @@
 import {
   ButtonItem,
   DialogBody,
+  Focusable,
   DialogControlsSection,
   DialogControlsSectionHeader,
   Field,
@@ -22,7 +23,6 @@ import {
   Device,
   EVENT,
   Job,
-  SETUP_ROUTE,
   SetupInfo,
   addDevice,
   connectDevice,
@@ -35,6 +35,7 @@ import {
   startSyncthing,
 } from "./backend";
 import { lang, t } from "./i18n";
+import { goBack } from "./nav";
 
 interface QrCode {
   addData(data: string): void;
@@ -438,14 +439,21 @@ export const Setup: FC = () => {
 
   if (!info) {
     return (
-      <div style={{ marginTop: 60, padding: 24, color: "#dcdedf" }}>
+      <Focusable style={{ marginTop: 60, padding: 24, color: "#dcdedf" }} onCancelButton={goBack}>
         {error ? t("not_responding", { err: error }) : <SteamSpinner />}
-      </div>
+      </Focusable>
     );
   }
 
+  // B anywhere on the screen returns to where it was opened from
+  const back = (content: ReactNode) => (
+    <Focusable onCancelButton={goBack} style={{ height: "100%" }}>
+      {content}
+    </Focusable>
+  );
+
   return (
-    <>
+    <Focusable onCancelButton={goBack} style={{ height: "100%", width: "100%" }}>
       <style>{CSS}</style>
       <SidebarNavigation
         title={t("s_title")}
@@ -453,24 +461,24 @@ export const Setup: FC = () => {
         pages={[
           {
             title: "ffmpeg",
+            identifier: "ffmpeg",
             icon: <FaFilm />,
-            route: `${SETUP_ROUTE}/ffmpeg`,
-            content: <FfmpegPage info={info} job={jobs.ffmpeg} />,
+            content: back(<FfmpegPage info={info} job={jobs.ffmpeg} />),
           },
           {
             title: "LocalSend",
+            identifier: "localsend",
             icon: <FaPaperPlane />,
-            route: `${SETUP_ROUTE}/localsend`,
-            content: <LocalSendPage info={info} refresh={refresh} />,
+            content: back(<LocalSendPage info={info} refresh={refresh} />),
           },
           {
             title: "Syncthing",
+            identifier: "syncthing",
             icon: <FaSyncAlt />,
-            route: `${SETUP_ROUTE}/syncthing`,
-            content: <SyncthingPage info={info} job={jobs.syncthing} refresh={refresh} />,
+            content: back(<SyncthingPage info={info} job={jobs.syncthing} refresh={refresh} />),
           },
         ]}
       />
-    </>
+    </Focusable>
   );
 };

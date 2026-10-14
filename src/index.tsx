@@ -5,7 +5,6 @@ import {
   Dropdown,
   Focusable,
   ModalRoot,
-  Navigation,
   PanelSection,
   PanelSectionRow,
   SliderField,
@@ -39,6 +38,7 @@ import {
   setLanguage,
 } from "./backend";
 import { dateLocale, lang, t } from "./i18n";
+import { goBack, openFromPanel, openPage } from "./nav";
 import { SendModal } from "./send";
 import { Setup } from "./setup";
 
@@ -501,7 +501,7 @@ const Gallery: FC = () => {
 
   if (error) {
     return (
-      <div className="dmg-page">
+      <Focusable className="dmg-page" onCancelButton={goBack}>
         <Styles />
         <div className="dmg-empty">
           {t("not_responding", { err: error })}
@@ -511,16 +511,16 @@ const Gallery: FC = () => {
             <DialogButton onClick={reload}>{t("retry")}</DialogButton>
           </Focusable>
         </div>
-      </div>
+      </Focusable>
     );
   }
 
   if (!status || !items) {
     return (
-      <div className="dmg-page">
+      <Focusable className="dmg-page" onCancelButton={goBack}>
         <Styles />
         <SteamSpinner />
-      </div>
+      </Focusable>
     );
   }
 
@@ -567,7 +567,7 @@ const Gallery: FC = () => {
   );
 
   return (
-    <div className="dmg-page">
+    <Focusable className="dmg-page" onCancelButton={goBack}>
       <Styles />
       <Focusable className="dmg-bars" flow-children="column">
         <Focusable className="dmg-bar" flow-children="horizontal">
@@ -628,7 +628,9 @@ const Gallery: FC = () => {
           <div className="dmg-warn">
             {stProblem ? t("sync_problem", { msg: status.syncthing?.message ?? "" }) : t("v_no_ffmpeg")}
           </div>
-          <DialogButton onClick={() => Navigation.Navigate(`${SETUP_ROUTE}/${stProblem ? "syncthing" : "ffmpeg"}`)}>
+          <DialogButton
+            onClick={() => openPage(SETUP_ROUTE)}
+          >
             {t("fix")}
           </DialogButton>
         </Focusable>
@@ -655,7 +657,7 @@ const Gallery: FC = () => {
           {visible.map(renderTile)}
         </Focusable>
       )}
-    </div>
+    </Focusable>
   );
 };
 
@@ -691,10 +693,7 @@ const Panel: FC = () => {
       .catch((e) => setErr(errText(e)));
   }, []);
 
-  const go = (route: string) => {
-    Navigation.CloseSideMenus();
-    Navigation.Navigate(route);
-  };
+  const go = (route: string) => openFromPanel(route);
 
   return (
     <>
@@ -847,7 +846,7 @@ const Panel: FC = () => {
 export default definePlugin(() => {
   setLanguage(lang()).catch(() => undefined);
   routerHook.addRoute(ROUTE, Gallery, { exact: true });
-  routerHook.addRoute(SETUP_ROUTE, Setup); // not exact: the sections are sub-routes
+  routerHook.addRoute(SETUP_ROUTE, Setup, { exact: true });
   return {
     name: TITLE,
     titleView: <div className={staticClasses.Title}>{TITLE}</div>,
