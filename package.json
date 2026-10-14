@@ -1,6 +1,6 @@
 {
   "name": "deck-clip-export",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Export Steam Game Recording clips to MP4 and send them and screenshots to other devices via LocalSend or Syncthing.",
   "type": "module",
   "scripts": {
